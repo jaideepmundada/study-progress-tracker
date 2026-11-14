@@ -1,0 +1,25 @@
+{
+  "name": "study-syllabus-tracker",
+  "version": "1.0.0",
+  "description": "Full-stack unit-wise syllabus tracker with Node.js backend and SQLite/JSON database",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5"
+  },
+  "keywords": [
+    "study-tracker",
+    "syllabus-tracker",
+    "fullstack",
+    "nodejs",
+    "express",
+    "database"
+  ],
+  "author": "",
+  "license": "ISC"
+}

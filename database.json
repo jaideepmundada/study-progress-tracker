@@ -1,0 +1,643 @@
+{
+  "version": "1.0.0",
+  "meta": {
+    "appName": "StudySync Tracker",
+    "createdAt": "2026-11-14T15:30:00.000Z",
+    "lastUpdated": "2026-11-14T16:01:00.000Z",
+    "streak": {
+      "count": 1,
+      "lastDate": "2026-11-14"
+    }
+  },
+  "subjects": [
+    {
+      "id": "os",
+      "name": "Operating System",
+      "code": "OS",
+      "color": "emerald",
+      "totalUnits": 5,
+      "units": [
+        {
+          "id": "os_u1",
+          "subjectId": "os",
+          "num": 1,
+          "title": "Introduction to Operating Systems, Dual-Mode Operation & System Calls",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        },
+        {
+          "id": "os_u2",
+          "subjectId": "os",
+          "num": 2,
+          "title": "Process Management, Threads, CPU Scheduling Algorithms & Multithreading",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        },
+        {
+          "id": "os_u3",
+          "subjectId": "os",
+          "num": 3,
+          "title": "Process Synchronization, Critical Section Problem, Semaphores & Deadlocks",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        },
+        {
+          "id": "os_u4",
+          "subjectId": "os",
+          "num": 4,
+          "title": "Memory Management, Paging, Segmentation, Page Replacement & Virtual Memory",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        },
+        {
+          "id": "os_u5",
+          "subjectId": "os",
+          "num": 5,
+          "title": "Storage Management, File System Interface, Directory Structures & I/O Systems",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "aiml",
+      "name": "Artificial Intelligence & Machine Learning",
+      "code": "AI & ML",
+      "color": "indigo",
+      "totalUnits": 5,
+      "units": [
+        {
+          "id": "aiml_u1",
+          "subjectId": "aiml",
+          "num": 1,
+          "title": "Intro to AI, Problem Formulation, State Spaces & Heuristic Search Algorithms",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        },
+        {
+          "id": "aiml_u2",
+          "subjectId": "aiml",
+          "num": 2,
+          "title": "Knowledge Representation, Propositional Logic & First-Order Predicate Logic",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        },
+        {
+          "id": "aiml_u3",
+          "subjectId": "aiml",
+          "num": 3,
+          "title": "Supervised Learning, Linear Regression, Logistic Regression & Decision Trees",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        },
+        {
+          "id": "aiml_u4",
+          "subjectId": "aiml",
+          "num": 4,
+          "title": "Unsupervised Learning, K-Means Clustering, PCA & Intro to Neural Networks",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        },
+        {
+          "id": "aiml_u5",
+          "subjectId": "aiml",
+          "num": 5,
+          "title": "Reinforcement Learning, Markov Decision Processes, AI Ethics & Applications",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "toc",
+      "name": "Theory of Computation",
+      "code": "TOC",
+      "color": "amber",
+      "totalUnits": 5,
+      "units": [
+        {
+          "id": "toc_u1",
+          "subjectId": "toc",
+          "num": 1,
+          "title": "Finite Automata (DFA, NFA), Conversions & Regular Expressions",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        },
+        {
+          "id": "toc_u2",
+          "subjectId": "toc",
+          "num": 2,
+          "title": "Regular Grammars, Pumping Lemma for Regular Languages & DFA Minimization",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        },
+        {
+          "id": "toc_u3",
+          "subjectId": "toc",
+          "num": 3,
+          "title": "Context-Free Grammars (CFG), Ambiguity, CNF/GNF & Pushdown Automata (PDA)",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        },
+        {
+          "id": "toc_u4",
+          "subjectId": "toc",
+          "num": 4,
+          "title": "Turing Machines (TM), Design Techniques, Multi-Tape TM & Church-Turing Thesis",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        },
+        {
+          "id": "toc_u5",
+          "subjectId": "toc",
+          "num": 5,
+          "title": "Decidability, Halting Problem, Undecidable Problems & Complexity Classes (P, NP)",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "cc",
+      "name": "Cloud Computing",
+      "code": "CC",
+      "color": "sky",
+      "totalUnits": 5,
+      "units": [
+        {
+          "id": "cc_u1",
+          "subjectId": "cc",
+          "num": 1,
+          "title": "Cloud Computing Architecture, Characteristics & Service Models (IaaS, PaaS, SaaS)",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        },
+        {
+          "id": "cc_u2",
+          "subjectId": "cc",
+          "num": 2,
+          "title": "Virtualization Technologies, Type 1 & Type 2 Hypervisors & Resource Provisioning",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        },
+        {
+          "id": "cc_u3",
+          "subjectId": "cc",
+          "num": 3,
+          "title": "Cloud Storage Architectures, Distributed File Systems, Cloud Security & IAM",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        },
+        {
+          "id": "cc_u4",
+          "subjectId": "cc",
+          "num": 4,
+          "title": "Cloud Native Technologies, Docker Containers, Microservices & Kubernetes Orchestration",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        },
+        {
+          "id": "cc_u5",
+          "subjectId": "cc",
+          "num": 5,
+          "title": "Cloud Monitoring, SLA, Cost Optimization, Disaster Recovery & Serverless",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "ipr",
+      "name": "IPR and Cyber Laws",
+      "code": "IPR",
+      "color": "rose",
+      "totalUnits": 4,
+      "units": [
+        {
+          "id": "ipr_u1",
+          "subjectId": "ipr",
+          "num": 1,
+          "title": "Intellectual Property Rights: Patents, Copyrights, Trademarks, Designs & Trade Secrets",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        },
+        {
+          "id": "ipr_u2",
+          "subjectId": "ipr",
+          "num": 2,
+          "title": "Cyber Laws Framework, Information Technology (IT) Act 2000 & Electronic Governance",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        },
+        {
+          "id": "ipr_u3",
+          "subjectId": "ipr",
+          "num": 3,
+          "title": "Cyber Crimes, Hacking, Identity Theft, Phishing, Tampering & Digital Evidence",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        },
+        {
+          "id": "ipr_u4",
+          "subjectId": "ipr",
+          "num": 4,
+          "title": "Data Protection, Privacy Regulations, E-Commerce Contracts, Jurisdiction & Liability",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T15:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "medchem",
+      "name": "Medicinal Chemistry 2",
+      "code": "MC-II",
+      "color": "teal",
+      "totalUnits": 5,
+      "units": [
+        {
+          "id": "medchem_u1",
+          "subjectId": "medchem",
+          "num": 1,
+          "title": "Antihistaminic Agents (H1 & H2 Antagonists, Gastric PPIs) & Anti-neoplastic Agents",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        },
+        {
+          "id": "medchem_u2",
+          "subjectId": "medchem",
+          "num": 2,
+          "title": "Cardiovascular Agents: Anti-anginal, Vasodilators & Diuretics (Carbonic anhydrase, Loop, Thiazides)",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        },
+        {
+          "id": "medchem_u3",
+          "subjectId": "medchem",
+          "num": 3,
+          "title": "Anti-hypertensive Drugs, Anti-arrhythmic Agents & Anti-hyperlipidemic Drugs",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        },
+        {
+          "id": "medchem_u4",
+          "subjectId": "medchem",
+          "num": 4,
+          "title": "Drugs Acting on Endocrine System: Sex Hormones, Thyroid & Anti-thyroid Drugs, Oral Contraceptives",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        },
+        {
+          "id": "medchem_u5",
+          "subjectId": "medchem",
+          "num": 5,
+          "title": "Antidiabetic Agents (Insulin, Sulfonylureas, Biguanides) & Local Anesthetics (SAR of Benzoic acid derivatives)",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "indpharm",
+      "name": "Industrial Pharmacy 1",
+      "code": "IP-I",
+      "color": "blue",
+      "totalUnits": 5,
+      "units": [
+        {
+          "id": "indpharm_u1",
+          "subjectId": "indpharm",
+          "num": 1,
+          "title": "Preformulation Studies: Physical & Chemical Properties of Drug Substances, BCS Classification",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        },
+        {
+          "id": "indpharm_u2",
+          "subjectId": "indpharm",
+          "num": 2,
+          "title": "Tablets: Formulation, Granulation Techniques, Compression Tooling, Tablet Coating & Manufacturing Defects",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        },
+        {
+          "id": "indpharm_u3",
+          "subjectId": "indpharm",
+          "num": 3,
+          "title": "Capsules: Hard Gelatin & Soft Gelatin Capsule Technology, Production Quality Controls & Pellets",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        },
+        {
+          "id": "indpharm_u4",
+          "subjectId": "indpharm",
+          "num": 4,
+          "title": "Parenteral Products (Small & Large Volume Parenterals, Pyrogen Testing) & Ophthalmic Preparations",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        },
+        {
+          "id": "indpharm_u5",
+          "subjectId": "indpharm",
+          "num": 5,
+          "title": "Cosmetics Formulation (Lipsticks, Shampoos, Creams), Pharmaceutical Aerosols & Packaging Materials",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "pharmcol",
+      "name": "Pharmacology 2",
+      "code": "P-COL-II",
+      "color": "fuchsia",
+      "totalUnits": 5,
+      "units": [
+        {
+          "id": "pharmcol_u1",
+          "subjectId": "pharmcol",
+          "num": 1,
+          "title": "Pharmacology of Drugs Acting on CVS: Congestive Heart Failure, Anti-hypertensives & Anti-anginal Drugs",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        },
+        {
+          "id": "pharmcol_u2",
+          "subjectId": "pharmcol",
+          "num": 2,
+          "title": "Anti-arrhythmic Drugs, Anti-hyperlipidemic Agents, Coagulants/Anticoagulants & Diuretics",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        },
+        {
+          "id": "pharmcol_u3",
+          "subjectId": "pharmcol",
+          "num": 3,
+          "title": "Autocoids: Histamine, 5-HT, Prostaglandins, Leukotrienes, NSAIDs & Anti-gout Medications",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        },
+        {
+          "id": "pharmcol_u4",
+          "subjectId": "pharmcol",
+          "num": 4,
+          "title": "Pharmacology of Endocrine System: Anterior Pituitary Hormones, Thyroid/Anti-thyroid, Diabetes & Steroids",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        },
+        {
+          "id": "pharmcol_u5",
+          "subjectId": "pharmcol",
+          "num": 5,
+          "title": "Bioassay Principles, Types & Applications (Insulin, Digitalis, Histamine) & Molecular Pharmacology",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "pharmacog",
+      "name": "Pharmacognosy 2",
+      "code": "P-COG-II",
+      "color": "lime",
+      "totalUnits": 5,
+      "units": [
+        {
+          "id": "pharmacog_u1",
+          "subjectId": "pharmacog",
+          "num": 1,
+          "title": "Metabolic Pathways in Higher Plants (Shikimic Acid & Mevalonic Acid Pathways) & Tracer Techniques",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        },
+        {
+          "id": "pharmacog_u2",
+          "subjectId": "pharmacog",
+          "num": 2,
+          "title": "Isolation, Identification & Analysis of Phytoconstituents (Alkaloids, Glycosides, Terpenoids & Resins)",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        },
+        {
+          "id": "pharmacog_u3",
+          "subjectId": "pharmacog",
+          "num": 3,
+          "title": "Industrial Production, Estimation & Utilization of Phytoconstituents (Forskolin, Sennosides, Artemisinin)",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        },
+        {
+          "id": "pharmacog_u4",
+          "subjectId": "pharmacog",
+          "num": 4,
+          "title": "Modern Extraction Techniques: Microwave, Ultrasonic, Supercritical Fluid & Phytochemical Screening",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        },
+        {
+          "id": "pharmacog_u5",
+          "subjectId": "pharmacog",
+          "num": 5,
+          "title": "Chromatography (TLC, Column, HPLC) & Spectroscopy (UV, IR, NMR) in Herbal Drug Analysis",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        }
+      ]
+    },
+    {
+      "id": "juris",
+      "name": "Pharmaceutical Jurisprudence",
+      "code": "PJ",
+      "color": "violet",
+      "totalUnits": 5,
+      "units": [
+        {
+          "id": "juris_u1",
+          "subjectId": "juris",
+          "num": 1,
+          "title": "Drugs & Cosmetics Act 1940 & Rules 1945: Objectives, Definitions, Legal Authorities & Advisory Boards (DTAB, DCC)",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        },
+        {
+          "id": "juris_u2",
+          "subjectId": "juris",
+          "num": 2,
+          "title": "Manufacture, Sale, Labeling & Packaging of Drugs, Government Analysts, Drug Inspectors & Schedules under D&C Act",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        },
+        {
+          "id": "juris_u3",
+          "subjectId": "juris",
+          "num": 3,
+          "title": "Pharmacy Act 1948, Medicinal & Toilet Preparations Act 1955, Narcotic Drugs & Psychotropic Substances (NDPS) Act 1985",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        },
+        {
+          "id": "juris_u4",
+          "subjectId": "juris",
+          "num": 4,
+          "title": "Drugs & Magic Remedies Act 1954, Prevention of Cruelty to Animals Act 1960 & National Drug Price Control Order (DPCO)",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        },
+        {
+          "id": "juris_u5",
+          "subjectId": "juris",
+          "num": 5,
+          "title": "Code of Pharmaceutical Ethics, Medical Termination of Pregnancy Act, Right to Information Act & Intellectual Property Rights",
+          "status": "not_started",
+          "completed": false,
+          "notes": "",
+          "revisions": 0,
+          "updatedAt": "2026-11-14T16:01:00.000Z"
+        }
+      ]
+    }
+  ]
+}
