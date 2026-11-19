@@ -126,6 +126,16 @@ const server = http.createServer(async (req, res) => {
   // --- REST API ROUTES ---
   if (pathname.startsWith('/api/')) {
     try {
+      // POST /api/auth/verify
+      if (pathname === '/api/auth/verify' && method === 'POST') {
+        const body = await parseBody(req);
+        if (body && body.passcode === '4501') {
+          return sendJSON(res, 200, { success: true, message: 'Passcode verified successfully' });
+        } else {
+          return sendJSON(res, 401, { success: false, error: 'Incorrect passcode' });
+        }
+      }
+
       // GET /api/health
       if (pathname === '/api/health' && method === 'GET') {
         return sendJSON(res, 200, {

@@ -13,7 +13,12 @@ html.light .bg-slate-950 {
   background-color: #f1f5f9;
 }
 
+html.light .bg-slate-950\/60 {
+  background-color: #f8fafc;
+}
+
 html.light .bg-slate-900,
+html.light .bg-slate-900\/95,
 html.light .bg-slate-900\/90,
 html.light .bg-slate-900\/80,
 html.light .bg-slate-900\/70 {
@@ -21,14 +26,24 @@ html.light .bg-slate-900\/70 {
 }
 
 html.light .border-slate-800,
+html.light .border-slate-800\/90,
 html.light .border-slate-800\/80,
-html.light .border-slate-800\/60 {
+html.light .border-slate-800\/60,
+html.light .border-slate-800\/40,
+html.light .border-slate-700,
+html.light .border-slate-700\/60,
+html.light .border-slate-700\/50 {
   border-color: #e2e8f0;
 }
 
 html.light .text-slate-100,
 html.light .text-white {
   color: #0f172a;
+}
+
+html.light .text-slate-200,
+html.light .text-slate-300 {
+  color: #334155;
 }
 
 html.light .text-slate-400 {
@@ -39,8 +54,12 @@ html.light .text-slate-500 {
   color: #94a3b8;
 }
 
-html.light .bg-slate-800 {
-  background-color: #e2e8f0;
+html.light .bg-slate-800,
+html.light .bg-slate-800\/80,
+html.light .bg-slate-800\/70,
+html.light .bg-slate-800\/60,
+html.light .bg-slate-800\/40 {
+  background-color: #f1f5f9;
 }
 
 html.light input,
@@ -49,6 +68,20 @@ html.light select {
   background-color: #ffffff !important;
   color: #0f172a !important;
   border-color: #cbd5e1 !important;
+}
+
+html.light .hover\:bg-slate-800:hover,
+html.light .hover\:bg-slate-700:hover {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .hover\:text-white:hover {
+  color: #0f172a !important;
+}
+
+html.light .active-filter {
+  background-color: #4f46e5 !important;
+  color: #ffffff !important;
 }
 
 /* Custom Checkbox */
@@ -139,4 +172,107 @@ html.light .unit-checkbox {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Passcode Authentication Styles */
+.pin-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  border: 2px solid #475569;
+  background-color: transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html.light .pin-dot {
+  border-color: #94a3b8;
+}
+
+.pin-dot.filled {
+  background-color: #6366f1;
+  border-color: #6366f1;
+  transform: scale(1.15);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.6);
+}
+
+.pin-dot.success {
+  background-color: #10b981;
+  border-color: #10b981;
+  transform: scale(1.2);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.7);
+}
+
+.pin-dot.error {
+  background-color: #f43f5e;
+  border-color: #f43f5e;
+  transform: scale(1.1);
+  box-shadow: 0 0 12px rgba(244, 63, 94, 0.6);
+}
+
+@keyframes pinShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-10px); }
+  40%, 80% { transform: translateX(10px); }
+}
+
+.pin-shake {
+  animation: pinShake 0.4s ease-in-out;
+}
+
+#authLockOverlay {
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#authLockOverlay.auth-hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+#appContainer.app-locked {
+  filter: blur(14px);
+  pointer-events: none;
+  user-select: none;
+}
+
+html.light #authLockOverlay {
+  background-color: rgba(241, 245, 249, 0.96);
+}
+
+html.light #authLockOverlay > div {
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+html.light .num-key {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+html.light .num-key:hover {
+  background-color: #e2e8f0;
+}
+
+html.light #pinClearBtn,
+html.light #pinBackspaceBtn {
+  background-color: #f8fafc;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+
+html.light #themeDropdownMenu {
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+html.light #themeDropdownMenu button {
+  color: #334155;
+}
+
+html.light #themeDropdownMenu button:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
 }

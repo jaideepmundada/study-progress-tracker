@@ -1,11 +1,647 @@
 /**
  * StudySync Tracker - Frontend Client
- * Communicates with REST API at http://localhost:3000
- * Automatically persists all updates into the backend database.
+ * Zero-delay instant load with persistent cloud sync
+ * PIN Protected (Passcode: 4501)
+ * Theme Modes: Light / Dark / Default
  */
 
 const API_BASE = window.location.origin.startsWith('http') ? window.location.origin : 'http://localhost:3000';
-const THEME_KEY = 'studysync_theme_pref';
+const THEME_MODE_KEY = 'studysync_theme_mode';
+const AUTH_STORAGE_KEY = 'studysync_auth_unlocked';
+const PASSCODE = '4501';
+
+// Seed syllabus fallback data for instant 0ms mobile & offline load
+const DEFAULT_SYLLABUS = [
+  {
+    "id": "os",
+    "name": "Operating System",
+    "code": "OS",
+    "color": "emerald",
+    "totalUnits": 5,
+    "units": [
+      {
+        "id": "os_u1",
+        "subjectId": "os",
+        "num": 1,
+        "title": "Introduction to Operating Systems, Dual-Mode Operation & System Calls",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      },
+      {
+        "id": "os_u2",
+        "subjectId": "os",
+        "num": 2,
+        "title": "Process Management, Threads, CPU Scheduling Algorithms & Multithreading",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      },
+      {
+        "id": "os_u3",
+        "subjectId": "os",
+        "num": 3,
+        "title": "Process Synchronization, Critical Section Problem, Semaphores & Deadlocks",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      },
+      {
+        "id": "os_u4",
+        "subjectId": "os",
+        "num": 4,
+        "title": "Memory Management, Paging, Segmentation, Page Replacement & Virtual Memory",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      },
+      {
+        "id": "os_u5",
+        "subjectId": "os",
+        "num": 5,
+        "title": "Storage Management, File System Interface, Directory Structures & I/O Systems",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "aiml",
+    "name": "Artificial Intelligence & Machine Learning",
+    "code": "AI & ML",
+    "color": "indigo",
+    "totalUnits": 5,
+    "units": [
+      {
+        "id": "aiml_u1",
+        "subjectId": "aiml",
+        "num": 1,
+        "title": "Intro to AI, Problem Formulation, State Spaces & Heuristic Search Algorithms",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      },
+      {
+        "id": "aiml_u2",
+        "subjectId": "aiml",
+        "num": 2,
+        "title": "Knowledge Representation, Propositional Logic & First-Order Predicate Logic",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      },
+      {
+        "id": "aiml_u3",
+        "subjectId": "aiml",
+        "num": 3,
+        "title": "Supervised Learning, Linear Regression, Logistic Regression & Decision Trees",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      },
+      {
+        "id": "aiml_u4",
+        "subjectId": "aiml",
+        "num": 4,
+        "title": "Unsupervised Learning, K-Means Clustering, PCA & Intro to Neural Networks",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      },
+      {
+        "id": "aiml_u5",
+        "subjectId": "aiml",
+        "num": 5,
+        "title": "Reinforcement Learning, Markov Decision Processes, AI Ethics & Applications",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "toc",
+    "name": "Theory of Computation",
+    "code": "TOC",
+    "color": "amber",
+    "totalUnits": 5,
+    "units": [
+      {
+        "id": "toc_u1",
+        "subjectId": "toc",
+        "num": 1,
+        "title": "Finite Automata (DFA, NFA), Conversions & Regular Expressions",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      },
+      {
+        "id": "toc_u2",
+        "subjectId": "toc",
+        "num": 2,
+        "title": "Regular Grammars, Pumping Lemma for Regular Languages & DFA Minimization",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      },
+      {
+        "id": "toc_u3",
+        "subjectId": "toc",
+        "num": 3,
+        "title": "Context-Free Grammars (CFG), Ambiguity, CNF/GNF & Pushdown Automata (PDA)",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      },
+      {
+        "id": "toc_u4",
+        "subjectId": "toc",
+        "num": 4,
+        "title": "Turing Machines (TM), Design Techniques, Multi-Tape TM & Church-Turing Thesis",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      },
+      {
+        "id": "toc_u5",
+        "subjectId": "toc",
+        "num": 5,
+        "title": "Decidability, Halting Problem, Undecidable Problems & Complexity Classes (P, NP)",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "cc",
+    "name": "Cloud Computing",
+    "code": "CC",
+    "color": "sky",
+    "totalUnits": 5,
+    "units": [
+      {
+        "id": "cc_u1",
+        "subjectId": "cc",
+        "num": 1,
+        "title": "Cloud Computing Architecture, Characteristics & Service Models (IaaS, PaaS, SaaS)",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      },
+      {
+        "id": "cc_u2",
+        "subjectId": "cc",
+        "num": 2,
+        "title": "Virtualization Technologies, Type 1 & Type 2 Hypervisors & Resource Provisioning",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      },
+      {
+        "id": "cc_u3",
+        "subjectId": "cc",
+        "num": 3,
+        "title": "Cloud Storage Architectures, Distributed File Systems, Cloud Security & IAM",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      },
+      {
+        "id": "cc_u4",
+        "subjectId": "cc",
+        "num": 4,
+        "title": "Cloud Native Technologies, Docker Containers, Microservices & Kubernetes Orchestration",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      },
+      {
+        "id": "cc_u5",
+        "subjectId": "cc",
+        "num": 5,
+        "title": "Cloud Monitoring, SLA, Cost Optimization, Disaster Recovery & Serverless",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "ipr",
+    "name": "IPR and Cyber Laws",
+    "code": "IPR",
+    "color": "rose",
+    "totalUnits": 4,
+    "units": [
+      {
+        "id": "ipr_u1",
+        "subjectId": "ipr",
+        "num": 1,
+        "title": "Intellectual Property Rights: Patents, Copyrights, Trademarks, Designs & Trade Secrets",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      },
+      {
+        "id": "ipr_u2",
+        "subjectId": "ipr",
+        "num": 2,
+        "title": "Cyber Laws Framework, Information Technology (IT) Act 2000 & Electronic Governance",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      },
+      {
+        "id": "ipr_u3",
+        "subjectId": "ipr",
+        "num": 3,
+        "title": "Cyber Crimes, Hacking, Identity Theft, Phishing, Tampering & Digital Evidence",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      },
+      {
+        "id": "ipr_u4",
+        "subjectId": "ipr",
+        "num": 4,
+        "title": "Data Protection, Privacy Regulations, E-Commerce Contracts, Jurisdiction & Liability",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T15:30:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "medchem",
+    "name": "Medicinal Chemistry 2",
+    "code": "MC-II",
+    "color": "teal",
+    "totalUnits": 5,
+    "units": [
+      {
+        "id": "medchem_u1",
+        "subjectId": "medchem",
+        "num": 1,
+        "title": "Antihistaminic Agents (H1 & H2 Antagonists, Gastric PPIs) & Anti-neoplastic Agents",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      },
+      {
+        "id": "medchem_u2",
+        "subjectId": "medchem",
+        "num": 2,
+        "title": "Cardiovascular Agents: Anti-anginal, Vasodilators & Diuretics (Carbonic anhydrase, Loop, Thiazides)",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      },
+      {
+        "id": "medchem_u3",
+        "subjectId": "medchem",
+        "num": 3,
+        "title": "Anti-hypertensive Drugs, Anti-arrhythmic Agents & Anti-hyperlipidemic Drugs",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      },
+      {
+        "id": "medchem_u4",
+        "subjectId": "medchem",
+        "num": 4,
+        "title": "Drugs Acting on Endocrine System: Sex Hormones, Thyroid & Anti-thyroid Drugs, Oral Contraceptives",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      },
+      {
+        "id": "medchem_u5",
+        "subjectId": "medchem",
+        "num": 5,
+        "title": "Antidiabetic Agents (Insulin, Sulfonylureas, Biguanides) & Local Anesthetics (SAR of Benzoic acid derivatives)",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "indpharm",
+    "name": "Industrial Pharmacy 1",
+    "code": "IP-I",
+    "color": "blue",
+    "totalUnits": 5,
+    "units": [
+      {
+        "id": "indpharm_u1",
+        "subjectId": "indpharm",
+        "num": 1,
+        "title": "Preformulation Studies: Physical & Chemical Properties of Drug Substances, BCS Classification",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      },
+      {
+        "id": "indpharm_u2",
+        "subjectId": "indpharm",
+        "num": 2,
+        "title": "Tablets: Formulation, Granulation Techniques, Compression Tooling, Tablet Coating & Manufacturing Defects",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      },
+      {
+        "id": "indpharm_u3",
+        "subjectId": "indpharm",
+        "num": 3,
+        "title": "Capsules: Hard Gelatin & Soft Gelatin Capsule Technology, Production Quality Controls & Pellets",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      },
+      {
+        "id": "indpharm_u4",
+        "subjectId": "indpharm",
+        "num": 4,
+        "title": "Parenteral Products (Small & Large Volume Parenterals, Pyrogen Testing) & Ophthalmic Preparations",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      },
+      {
+        "id": "indpharm_u5",
+        "subjectId": "indpharm",
+        "num": 5,
+        "title": "Cosmetics Formulation (Lipsticks, Shampoos, Creams), Pharmaceutical Aerosols & Packaging Materials",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "pharmcol",
+    "name": "Pharmacology 2",
+    "code": "P-COL-II",
+    "color": "fuchsia",
+    "totalUnits": 5,
+    "units": [
+      {
+        "id": "pharmcol_u1",
+        "subjectId": "pharmcol",
+        "num": 1,
+        "title": "Pharmacology of Drugs Acting on CVS: Congestive Heart Failure, Anti-hypertensives & Anti-anginal Drugs",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      },
+      {
+        "id": "pharmcol_u2",
+        "subjectId": "pharmcol",
+        "num": 2,
+        "title": "Anti-arrhythmic Drugs, Anti-hyperlipidemic Agents, Coagulants/Anticoagulants & Diuretics",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      },
+      {
+        "id": "pharmcol_u3",
+        "subjectId": "pharmcol",
+        "num": 3,
+        "title": "Autocoids: Histamine, 5-HT, Prostaglandins, Leukotrienes, NSAIDs & Anti-gout Medications",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      },
+      {
+        "id": "pharmcol_u4",
+        "subjectId": "pharmcol",
+        "num": 4,
+        "title": "Pharmacology of Endocrine System: Anterior Pituitary Hormones, Thyroid/Anti-thyroid, Diabetes & Steroids",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      },
+      {
+        "id": "pharmcol_u5",
+        "subjectId": "pharmcol",
+        "num": 5,
+        "title": "Bioassay Principles, Types & Applications (Insulin, Digitalis, Histamine) & Molecular Pharmacology",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "pharmacog",
+    "name": "Pharmacognosy 2",
+    "code": "P-COG-II",
+    "color": "lime",
+    "totalUnits": 5,
+    "units": [
+      {
+        "id": "pharmacog_u1",
+        "subjectId": "pharmacog",
+        "num": 1,
+        "title": "Metabolic Pathways in Higher Plants (Shikimic Acid & Mevalonic Acid Pathways) & Tracer Techniques",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      },
+      {
+        "id": "pharmacog_u2",
+        "subjectId": "pharmacog",
+        "num": 2,
+        "title": "Isolation, Identification & Analysis of Phytoconstituents (Alkaloids, Glycosides, Terpenoids & Resins)",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      },
+      {
+        "id": "pharmacog_u3",
+        "subjectId": "pharmacog",
+        "num": 3,
+        "title": "Industrial Production, Estimation & Utilization of Phytoconstituents (Forskolin, Sennosides, Artemisinin)",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      },
+      {
+        "id": "pharmacog_u4",
+        "subjectId": "pharmacog",
+        "num": 4,
+        "title": "Modern Extraction Techniques: Microwave, Ultrasonic, Supercritical Fluid & Phytochemical Screening",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      },
+      {
+        "id": "pharmacog_u5",
+        "subjectId": "pharmacog",
+        "num": 5,
+        "title": "Chromatography (TLC, Column, HPLC) & Spectroscopy (UV, IR, NMR) in Herbal Drug Analysis",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "juris",
+    "name": "Pharmaceutical Jurisprudence",
+    "code": "PJ",
+    "color": "violet",
+    "totalUnits": 5,
+    "units": [
+      {
+        "id": "juris_u1",
+        "subjectId": "juris",
+        "num": 1,
+        "title": "Drugs & Cosmetics Act 1940 & Rules 1945: Objectives, Definitions, Legal Authorities & Advisory Boards (DTAB, DCC)",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      },
+      {
+        "id": "juris_u2",
+        "subjectId": "juris",
+        "num": 2,
+        "title": "Manufacture, Sale, Labeling & Packaging of Drugs, Government Analysts, Drug Inspectors & Schedules under D&C Act",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      },
+      {
+        "id": "juris_u3",
+        "subjectId": "juris",
+        "num": 3,
+        "title": "Pharmacy Act 1948, Medicinal & Toilet Preparations Act 1955, Narcotic Drugs & Psychotropic Substances (NDPS) Act 1985",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      },
+      {
+        "id": "juris_u4",
+        "subjectId": "juris",
+        "num": 4,
+        "title": "Drugs & Magic Remedies Act 1954, Prevention of Cruelty to Animals Act 1960 & National Drug Price Control Order (DPCO)",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      },
+      {
+        "id": "juris_u5",
+        "subjectId": "juris",
+        "num": 5,
+        "title": "Code of Pharmaceutical Ethics, Medical Termination of Pregnancy Act, Right to Information Act & Intellectual Property Rights",
+        "status": "not_started",
+        "completed": false,
+        "notes": "",
+        "revisions": 0,
+        "updatedAt": "2026-11-14T16:01:00.000Z"
+      }
+    ]
+  }
+];
 
 // Subject SVG icons map
 const SUBJECT_ICONS = {
@@ -33,6 +669,8 @@ let state = {
   isServerConnected: false
 };
 
+let currentPin = '';
+
 // API Helpers
 async function fetchAPI(endpoint, options = {}) {
   const url = `${API_BASE}${endpoint}`;
@@ -51,10 +689,324 @@ async function fetchAPI(endpoint, options = {}) {
 }
 
 // Initialize App
+document.addEventListener('DOMContentLoaded', () => {
+  initApp();
+});
+
 async function initApp() {
   setupTheme();
+  setupAuthentication();
   bindGlobalEvents();
+  loadInitialData();
   await loadDataFromBackend();
+}
+
+// --- PASSCODE AUTHENTICATION (PIN: 4501) ---
+function setupAuthentication() {
+  const isUnlocked = localStorage.getItem(AUTH_STORAGE_KEY) === 'true' || 
+                     sessionStorage.getItem(AUTH_STORAGE_KEY) === 'true';
+
+  if (isUnlocked) {
+    unlockApp(false);
+  } else {
+    lockApp();
+  }
+
+  // Keypad button clicks
+  document.querySelectorAll('.num-key').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const digit = btn.getAttribute('data-digit');
+      if (digit !== null) {
+        handlePinDigit(digit);
+      }
+    });
+  });
+
+  // Clear & Backspace
+  document.getElementById('pinClearBtn')?.addEventListener('click', resetPinInput);
+  document.getElementById('pinBackspaceBtn')?.addEventListener('click', handlePinBackspace);
+
+  // Lock App Button
+  document.getElementById('lockAppBtn')?.addEventListener('click', () => {
+    lockApp();
+  });
+
+  // Global physical & software keyboard input
+  window.addEventListener('keydown', (e) => {
+    const overlay = document.getElementById('authLockOverlay');
+    if (!overlay || overlay.classList.contains('auth-hidden')) return;
+
+    if (e.key >= '0' && e.key <= '9') {
+      handlePinDigit(e.key);
+    } else if (e.key === 'Backspace') {
+      handlePinBackspace();
+    } else if (e.key === 'Escape') {
+      resetPinInput();
+    }
+  });
+}
+
+function handlePinDigit(digit) {
+  if (currentPin.length >= 4) return;
+  currentPin += digit;
+  updatePinDots();
+
+  if (currentPin.length === 4) {
+    verifyPin();
+  }
+}
+
+function handlePinBackspace() {
+  if (currentPin.length === 0) return;
+  currentPin = currentPin.slice(0, -1);
+  updatePinDots();
+  hidePinError();
+}
+
+function resetPinInput() {
+  currentPin = '';
+  updatePinDots();
+  hidePinError();
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById(`pinDot${i}`);
+    if (dot) {
+      if (i < currentPin.length) {
+        dot.classList.add('filled');
+      } else {
+        dot.classList.remove('filled', 'error', 'success');
+      }
+    }
+  }
+}
+
+function showPinError() {
+  const errorMsg = document.getElementById('authErrorMsg');
+  const container = document.getElementById('pinDotsContainer');
+  if (errorMsg) {
+    errorMsg.classList.remove('opacity-0');
+  }
+  if (container) {
+    container.classList.add('pin-shake');
+  }
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById(`pinDot${i}`);
+    dot?.classList.add('error');
+  }
+  if (navigator.vibrate) {
+    try { navigator.vibrate([60, 40, 60]); } catch (e) {}
+  }
+
+  setTimeout(() => {
+    if (container) container.classList.remove('pin-shake');
+    resetPinInput();
+  }, 500);
+}
+
+function hidePinError() {
+  const errorMsg = document.getElementById('authErrorMsg');
+  if (errorMsg) {
+    errorMsg.classList.add('opacity-0');
+  }
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById(`pinDot${i}`);
+    dot?.classList.remove('error');
+  }
+}
+
+function verifyPin() {
+  if (currentPin === PASSCODE) {
+    // PIN correct!
+    for (let i = 0; i < 4; i++) {
+      const dot = document.getElementById(`pinDot${i}`);
+      dot?.classList.remove('error');
+      dot?.classList.add('success');
+    }
+    const lockIcon = document.getElementById('authIconLock');
+    const successIcon = document.getElementById('authIconSuccess');
+    if (lockIcon && successIcon) {
+      lockIcon.classList.add('hidden');
+      successIcon.classList.remove('hidden');
+    }
+
+    if (navigator.vibrate) {
+      try { navigator.vibrate([30, 40, 30]); } catch (e) {}
+    }
+
+    const remember = document.getElementById('authRememberCheckbox')?.checked !== false;
+    if (remember) {
+      localStorage.setItem(AUTH_STORAGE_KEY, 'true');
+    } else {
+      sessionStorage.setItem(AUTH_STORAGE_KEY, 'true');
+    }
+
+    setTimeout(() => {
+      unlockApp(true);
+    }, 300);
+  } else {
+    showPinError();
+  }
+}
+
+function unlockApp(animate = true) {
+  const overlay = document.getElementById('authLockOverlay');
+  const container = document.getElementById('appContainer');
+
+  if (animate) {
+    overlay?.classList.add('auth-hidden');
+    container?.classList.remove('app-locked');
+  } else {
+    overlay?.classList.add('auth-hidden');
+    container?.classList.remove('app-locked');
+  }
+}
+
+function lockApp() {
+  localStorage.removeItem(AUTH_STORAGE_KEY);
+  sessionStorage.removeItem(AUTH_STORAGE_KEY);
+
+  const overlay = document.getElementById('authLockOverlay');
+  const container = document.getElementById('appContainer');
+  const lockIcon = document.getElementById('authIconLock');
+  const successIcon = document.getElementById('authIconSuccess');
+
+  if (lockIcon && successIcon) {
+    lockIcon.classList.remove('hidden');
+    successIcon.classList.add('hidden');
+  }
+
+  resetPinInput();
+  overlay?.classList.remove('auth-hidden');
+  container?.classList.add('app-locked');
+}
+
+// --- THEME MODES: LIGHT / DARK / DEFAULT ---
+function setupTheme() {
+  const savedMode = localStorage.getItem(THEME_MODE_KEY) || 'default';
+  applyTheme(savedMode, false);
+
+  // Listen to OS theme change when in 'default' mode
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  mediaQuery.addEventListener('change', () => {
+    const currentMode = localStorage.getItem(THEME_MODE_KEY) || 'default';
+    if (currentMode === 'default') {
+      applyTheme('default', false);
+    }
+  });
+
+  // Dropdown toggle
+  const menuBtn = document.getElementById('themeMenuBtn');
+  const dropdown = document.getElementById('themeDropdownMenu');
+
+  menuBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdown?.classList.toggle('hidden');
+  });
+
+  // Options click
+  dropdown?.querySelectorAll('button[data-theme-val]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const selected = btn.getAttribute('data-theme-val');
+      applyTheme(selected, true);
+      dropdown.classList.add('hidden');
+    });
+  });
+
+  // Click outside closes dropdown
+  document.addEventListener('click', (e) => {
+    if (!dropdown?.contains(e.target) && e.target !== menuBtn) {
+      dropdown?.classList.add('hidden');
+    }
+  });
+}
+
+function applyTheme(mode, persist = true) {
+  if (persist) {
+    localStorage.setItem(THEME_MODE_KEY, mode);
+  }
+
+  const html = document.documentElement;
+  let effectiveTheme = mode;
+
+  if (mode === 'default') {
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    effectiveTheme = systemDark ? 'dark' : 'light';
+  }
+
+  if (effectiveTheme === 'light') {
+    html.classList.remove('dark');
+    html.classList.add('light');
+  } else {
+    html.classList.remove('light');
+    html.classList.add('dark');
+  }
+
+  // Update theme button label & icon
+  const labelEl = document.getElementById('themeCurrentLabel');
+  const iconContainer = document.getElementById('themeCurrentIcon');
+
+  const icons = {
+    light: `<svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`,
+    dark: `<svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>`,
+    default: `<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>`
+  };
+
+  const labelTexts = {
+    light: 'Light',
+    dark: 'Dark',
+    default: 'Default'
+  };
+
+  if (labelEl) labelEl.textContent = labelTexts[mode] || 'Theme';
+  if (iconContainer) iconContainer.innerHTML = icons[mode] || icons.default;
+
+  // Update checkmarks in dropdown
+  ['light', 'dark', 'default'].forEach(val => {
+    const checkEl = document.querySelector(`.theme-check-${val}`);
+    if (checkEl) {
+      if (val === mode) {
+        checkEl.classList.remove('hidden');
+      } else {
+        checkEl.classList.add('hidden');
+      }
+    }
+  });
+}
+
+// --- DATA INITIALIZATION & HYDRATION ---
+function loadInitialData() {
+  // Load from local cache immediately (0ms delay) so mobile / cold-start is instant!
+  const cachedProgress = localStorage.getItem('studysync_cloud_persistent_progress');
+  if (cachedProgress) {
+    try {
+      const parsed = JSON.parse(cachedProgress);
+      if (parsed && Array.isArray(parsed.subjects) && parsed.subjects.length > 0) {
+        state.subjects = parsed.subjects;
+        if (parsed.meta) state.stats = parsed.meta;
+        render();
+        return;
+      }
+    } catch (e) {}
+  }
+
+  const offlineCache = localStorage.getItem('studysync_offline_cache');
+  if (offlineCache) {
+    try {
+      const parsed = JSON.parse(offlineCache);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        state.subjects = parsed;
+        render();
+        return;
+      }
+    } catch (e) {}
+  }
+
+  // Fallback to embedded default seed data
+  state.subjects = JSON.parse(JSON.stringify(DEFAULT_SYLLABUS));
+  render();
 }
 
 // Load Data from Backend REST API
@@ -68,68 +1020,64 @@ async function loadDataFromBackend() {
       fetchAPI('/api/stats')
     ]);
 
-    state.subjects = subjectsRes.data || [];
-    state.stats = statsRes.data || null;
+    let loadedSubjects = subjectsRes.data || [];
+    let loadedStats = statsRes.data || null;
+
+    // Auto-rehydrate cloud instance if container restarted empty
+    const localBackupRaw = localStorage.getItem('studysync_cloud_persistent_progress');
+    if (localBackupRaw) {
+      try {
+        const localBackup = JSON.parse(localBackupRaw);
+        const serverHasProgress = loadedSubjects.some(s => s.units.some(u => u.completed || u.revisions > 0 || (u.notes && u.notes.trim())));
+        const localHasProgress = localBackup.subjects && localBackup.subjects.some(s => s.units.some(u => u.completed || u.revisions > 0 || (u.notes && u.notes.trim())));
+
+        if (!serverHasProgress && localHasProgress) {
+          console.log("Restoring saved progress to cloud instance...");
+          await fetchAPI('/api/import', {
+            method: 'POST',
+            body: JSON.stringify(localBackup)
+          });
+          const refreshed = await fetchAPI('/api/subjects');
+          loadedSubjects = refreshed.data || loadedSubjects;
+        }
+      } catch (backupErr) {
+        console.warn("Could not check local rehydration backup:", backupErr);
+      }
+    }
+
+    state.subjects = loadedSubjects.length > 0 ? loadedSubjects : state.subjects;
+    state.stats = loadedStats || state.stats;
     state.isServerConnected = true;
 
     if (serverBadge && serverText) {
       serverBadge.className = 'text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium flex items-center gap-1.5';
-      serverText.textContent = `Connected (localhost:3000)`;
+      serverText.textContent = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+        ? 'Connected (localhost)' 
+        : 'Live Cloud Sync • Connected';
     }
 
     render();
   } catch (err) {
-    console.warn("Backend not reached at", API_BASE, err);
+    console.warn("Backend not reached immediately, working with local cache:", err);
     state.isServerConnected = false;
 
     if (serverBadge && serverText) {
       serverBadge.className = 'text-xs px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium flex items-center gap-1.5';
-      serverText.textContent = 'Backend Offline • Check server';
+      serverText.textContent = 'Offline (Saved Locally)';
     }
 
-    const cached = localStorage.getItem('studysync_offline_cache');
-    if (cached) {
-      try {
-        state.subjects = JSON.parse(cached);
-        render();
-      } catch (e) {}
-    }
+    // Schedule background retry (for Render wake-up)
+    setTimeout(() => {
+      loadDataFromBackend();
+    }, 8000);
   }
-}
-
-// Theme handling
-function setupTheme() {
-  const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
-  const html = document.documentElement;
-  const moonIcon = document.getElementById('themeMoonIcon');
-  const sunIcon = document.getElementById('themeSunIcon');
-
-  if (savedTheme === 'light') {
-    html.classList.remove('dark');
-    html.classList.add('light');
-    moonIcon?.classList.remove('hidden');
-    sunIcon?.classList.add('hidden');
-  } else {
-    html.classList.remove('light');
-    html.classList.add('dark');
-    moonIcon?.classList.add('hidden');
-    sunIcon?.classList.remove('hidden');
-  }
-}
-
-function toggleTheme() {
-  const html = document.documentElement;
-  const isDark = html.classList.contains('dark');
-  const nextTheme = isDark ? 'light' : 'dark';
-  localStorage.setItem(THEME_KEY, nextTheme);
-  setupTheme();
 }
 
 // Bind Global UI Listeners
 function bindGlobalEvents() {
-  document.getElementById('themeToggleBtn')?.addEventListener('click', toggleTheme);
-
   document.getElementById('refreshBtn')?.addEventListener('click', async () => {
+    const serverText = document.getElementById('serverStatusText');
+    if (serverText) serverText.textContent = 'Syncing...';
     await loadDataFromBackend();
   });
 
@@ -195,10 +1143,21 @@ function closeModal(id) {
   setTimeout(() => modal.classList.add('hidden'), 200);
 }
 
+// Render UI & Metrics
 function render() {
   updateMetrics();
   renderSubjects();
   try {
+    const snapshot = {
+      version: "1.0.0",
+      timestamp: new Date().toISOString(),
+      subjects: state.subjects,
+      meta: {
+        streak: state.stats ? state.stats.streak : null,
+        lastUpdated: new Date().toISOString()
+      }
+    };
+    localStorage.setItem('studysync_cloud_persistent_progress', JSON.stringify(snapshot));
     localStorage.setItem('studysync_offline_cache', JSON.stringify(state.subjects));
   } catch (e) {}
 }
@@ -267,7 +1226,7 @@ function updateMetrics() {
     } else if (percentage >= 25) {
       motivationalMessage.innerHTML = '📈 Solid start! 1/4th of your curriculum mastered!';
     } else if (percentage > 0) {
-      motivationalMessage.innerHTML = '🚀 Progress logged in database! Keep going step by step.';
+      motivationalMessage.innerHTML = '🚀 Progress logged! Keep going step by step.';
     } else {
       motivationalMessage.innerHTML = 'Ready to begin your study journey! 🚀';
     }
@@ -390,41 +1349,41 @@ function renderSubjects() {
     const iconSvg = SUBJECT_ICONS[subject.id] || SUBJECT_ICONS.os;
 
     card.innerHTML = `
-      <div class="p-5 sm:p-6 border-b border-slate-800/60 bg-gradient-to-r from-slate-900/90 to-slate-900/40">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="p-4 sm:p-6 border-b border-slate-800/60 bg-gradient-to-r from-slate-900/90 to-slate-900/40">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
           
-          <div class="flex items-center gap-3.5">
-            <div class="w-11 h-11 rounded-2xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center flex-shrink-0 shadow-inner">
+          <div class="flex items-center gap-3 sm:gap-3.5">
+            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center flex-shrink-0 shadow-inner">
               ${iconSvg}
             </div>
             <div>
               <div class="flex items-center gap-2 flex-wrap">
-                <h2 class="text-lg sm:text-xl font-bold text-white tracking-tight">${subject.name}</h2>
+                <h2 class="text-base sm:text-xl font-bold text-white tracking-tight">${subject.name}</h2>
                 <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono font-medium border border-slate-700">
                   ${totalUnits} Units
                 </span>
                 ${isSubjectDone ? `
                   <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-semibold flex items-center gap-1">
-                    <span>✓</span> Completed
+                    <span>✓</span> Done
                   </span>
                 ` : ''}
               </div>
               <p class="text-xs text-slate-400 mt-0.5">
-                ${completedUnits} of ${totalUnits} units mastered • ${totalUnits - completedUnits} remaining
+                ${completedUnits} of ${totalUnits} mastered • ${totalUnits - completedUnits} remaining
               </p>
             </div>
           </div>
 
-          <div class="flex items-center gap-3 sm:gap-4 self-end sm:self-auto">
-            <div class="text-right">
-              <span class="text-lg font-extrabold ${accentText}">${subjectPercent}%</span>
+          <div class="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-800/40">
+            <div class="text-left sm:text-right">
+              <span class="text-base sm:text-lg font-extrabold ${accentText}">${subjectPercent}%</span>
               <div class="w-24 sm:w-32 bg-slate-800 rounded-full h-2 overflow-hidden mt-1 p-0.5">
                 <div class="h-full bg-gradient-to-r ${accentBorder} rounded-full transition-all duration-500 ease-out" style="width: ${subjectPercent}%"></div>
               </div>
             </div>
 
             <div class="flex items-center gap-1 pl-2 border-l border-slate-800">
-              <button data-action="mark-subject-all" data-subject="${subject.id}" title="Mark all units in ${subject.name} complete" class="p-2 text-slate-400 hover:text-emerald-400 hover:bg-slate-800 rounded-xl transition">
+              <button data-action="mark-subject-all" data-subject="${subject.id}" title="Mark all in ${subject.name} complete" class="p-2 text-slate-400 hover:text-emerald-400 hover:bg-slate-800 rounded-xl transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
               </button>
               <button data-action="reset-subject" data-subject="${subject.id}" title="Reset ${subject.name}" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-xl transition">
@@ -442,7 +1401,7 @@ function renderSubjects() {
       </div>
 
       <div id="accordion-${subject.id}" class="accordion-content ${isCollapsed ? 'collapsed' : ''}">
-        <div class="p-4 sm:p-6 space-y-3">
+        <div class="p-3 sm:p-6 space-y-2.5 sm:space-y-3">
           ${visibleUnits.length === 0 ? `
             <div class="py-8 text-center text-sm text-slate-500">
               No units match the current filter or search query.
@@ -456,9 +1415,9 @@ function renderSubjects() {
             const hasNotes = unit.notes && unit.notes.trim().length > 0;
 
             return `
-              <div class="unit-card group flex flex-col md:flex-row md:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-950/60 border ${isDone ? 'border-emerald-500/20 bg-emerald-950/10' : 'border-slate-800/80 hover:border-slate-700/80'} transition-all duration-200">
+              <div class="unit-card group flex flex-col md:flex-row md:items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-slate-950/60 border ${isDone ? 'border-emerald-500/20 bg-emerald-950/10' : 'border-slate-800/80 hover:border-slate-700/80'} transition-all duration-200">
                 
-                <div class="flex items-start sm:items-center gap-3.5 flex-1 min-w-0">
+                <div class="flex items-start sm:items-center gap-3 flex-1 min-w-0">
                   <input 
                     type="checkbox" 
                     class="unit-checkbox mt-0.5 sm:mt-0" 
@@ -490,7 +1449,7 @@ function renderSubjects() {
                     </div>
 
                     <div class="mt-1 flex items-center gap-2">
-                      <h4 class="text-sm font-medium ${isDone ? 'line-through text-slate-400' : 'text-slate-100'} truncate-2-lines transition">
+                      <h4 class="text-xs sm:text-sm font-medium ${isDone ? 'line-through text-slate-400' : 'text-slate-100'} truncate-2-lines transition">
                         ${unit.title}
                       </h4>
                       <button 
@@ -498,7 +1457,7 @@ function renderSubjects() {
                         data-subject="${subject.id}" 
                         data-unit="${unit.id}" 
                         title="Edit Unit Title" 
-                        class="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-indigo-400 transition flex-shrink-0"
+                        class="opacity-60 sm:opacity-0 group-hover:opacity-100 text-slate-500 hover:text-indigo-400 transition flex-shrink-0"
                       >
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                       </button>
@@ -579,11 +1538,23 @@ function bindSubjectCardEvents(container) {
   container.querySelectorAll('button[data-action="increment-revision"]').forEach(btn => {
     btn.addEventListener('click', async (e) => {
       const unitId = e.currentTarget.dataset.unit;
+      const subjectId = e.currentTarget.dataset.subject;
+
+      // Optimistic UI update
+      const subject = state.subjects.find(s => s.id === subjectId);
+      if (subject) {
+        const unit = subject.units.find(u => u.id === unitId);
+        if (unit) {
+          unit.revisions = (unit.revisions || 0) + 1;
+          render();
+        }
+      }
+
       try {
         await fetchAPI(`/api/units/${unitId}/revise`, { method: 'POST' });
-        await loadDataFromBackend();
+        triggerMiniConfetti(e.clientX, e.clientY);
       } catch (err) {
-        console.error("Failed to revise:", err);
+        console.warn('Revise update saved locally (offline):', err);
       }
     });
   });
@@ -592,7 +1563,7 @@ function bindSubjectCardEvents(container) {
     btn.addEventListener('click', (e) => {
       const subjectId = e.currentTarget.dataset.subject;
       const unitId = e.currentTarget.dataset.unit;
-      openNotesModalForUnit(subjectId, unitId);
+      openNotesModal(subjectId, unitId);
     });
   });
 
@@ -600,101 +1571,143 @@ function bindSubjectCardEvents(container) {
     btn.addEventListener('click', (e) => {
       const subjectId = e.currentTarget.dataset.subject;
       const unitId = e.currentTarget.dataset.unit;
-      openEditTitleModalForUnit(subjectId, unitId);
+      openEditTitleModal(subjectId, unitId);
     });
   });
 
   container.querySelectorAll('button[data-action="toggle-accordion"]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const subjectId = e.currentTarget.dataset.subject;
-      state.collapsedMap[subjectId] = !state.collapsedMap[subjectId];
-      renderSubjects();
+      toggleAccordion(subjectId);
     });
   });
 
   container.querySelectorAll('button[data-action="mark-subject-all"]').forEach(btn => {
     btn.addEventListener('click', async (e) => {
       const subjectId = e.currentTarget.dataset.subject;
-      try {
-        await fetchAPI(`/api/subjects/${subjectId}/mark-all`, {
-          method: 'POST',
-          body: JSON.stringify({ completed: true })
-        });
-        triggerCelebration(false);
-        await loadDataFromBackend();
-      } catch (err) {
-        console.error("Failed to mark all:", err);
-      }
+      await markSubjectAllComplete(subjectId);
     });
   });
 
   container.querySelectorAll('button[data-action="reset-subject"]').forEach(btn => {
     btn.addEventListener('click', async (e) => {
       const subjectId = e.currentTarget.dataset.subject;
-      try {
-        await fetchAPI(`/api/subjects/${subjectId}/mark-all`, {
-          method: 'POST',
-          body: JSON.stringify({ completed: false })
-        });
-        await loadDataFromBackend();
-      } catch (err) {
-        console.error("Failed to reset subject:", err);
-      }
+      await resetSubjectProgress(subjectId);
     });
   });
 }
 
+// Backend Update Helpers
 async function updateUnitOnBackend(subjectId, unitId, changes) {
   const subject = state.subjects.find(s => s.id === subjectId);
-  if (subject) {
-    const unit = subject.units.find(u => u.id === unitId);
-    if (unit) {
-      if (typeof changes.completed === 'boolean') {
-        unit.completed = changes.completed;
-        unit.status = changes.completed ? 'completed' : 'not_started';
-      }
-      if (changes.status) {
-        unit.status = changes.status;
-        unit.completed = (changes.status === 'completed');
-      }
-      render();
-    }
+  if (!subject) return;
+  const unit = subject.units.find(u => u.id === unitId);
+  if (!unit) return;
+
+  if (changes.completed !== undefined) {
+    unit.completed = changes.completed;
+    unit.status = changes.completed ? 'completed' : 'not_started';
+    if (changes.completed) triggerMiniCelebration();
   }
+  if (changes.status !== undefined) {
+    unit.status = changes.status;
+    unit.completed = changes.status === 'completed';
+    if (unit.completed) triggerMiniCelebration();
+  }
+  if (changes.notes !== undefined) {
+    unit.notes = changes.notes;
+  }
+  if (changes.title !== undefined) {
+    unit.title = changes.title;
+  }
+
+  render();
 
   try {
     await fetchAPI(`/api/units/${unitId}`, {
       method: 'PATCH',
       body: JSON.stringify(changes)
     });
-    if (subject && subject.units.every(u => u.completed)) {
-      triggerCelebration(false);
-    }
-    await loadDataFromBackend();
   } catch (err) {
-    console.error("Backend update failed, reverting:", err);
-    await loadDataFromBackend();
+    console.warn('Update saved locally (offline):', err);
   }
 }
 
+async function markSubjectAllComplete(subjectId) {
+  const subject = state.subjects.find(s => s.id === subjectId);
+  if (!subject) return;
+
+  subject.units.forEach(u => {
+    u.completed = true;
+    u.status = 'completed';
+  });
+  render();
+  triggerCelebration(false);
+
+  try {
+    await fetchAPI(`/api/subjects/${subjectId}/mark-all`, {
+      method: 'POST',
+      body: JSON.stringify({ completed: true })
+    });
+  } catch (err) {
+    console.warn('Mark all saved locally (offline):', err);
+  }
+}
+
+async function resetSubjectProgress(subjectId) {
+  const subject = state.subjects.find(s => s.id === subjectId);
+  if (!subject) return;
+
+  subject.units.forEach(u => {
+    u.completed = false;
+    u.status = 'not_started';
+    u.revisions = 0;
+  });
+  render();
+
+  try {
+    for (const unit of subject.units) {
+      await fetchAPI(`/api/units/${unit.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ completed: false, status: 'not_started', revisions: 0 })
+      });
+    }
+  } catch (err) {
+    console.warn('Reset saved locally (offline):', err);
+  }
+}
+
+function toggleAccordion(subjectId) {
+  state.collapsedMap[subjectId] = !state.collapsedMap[subjectId];
+  const content = document.getElementById(`accordion-${subjectId}`);
+  if (content) {
+    if (state.collapsedMap[subjectId]) {
+      content.classList.add('collapsed');
+    } else {
+      content.classList.remove('collapsed');
+    }
+  }
+  renderSubjects();
+}
+
 function toggleAllAccordions() {
-  const anyOpen = state.subjects.some(s => !state.collapsedMap[s.id]);
-  const btnLabel = document.getElementById('accordionBtnLabel');
-  const collapseIcon = document.getElementById('collapseIcon');
+  const allCollapsed = state.subjects.every(s => state.collapsedMap[s.id]);
+  const shouldCollapse = !allCollapsed;
 
   state.subjects.forEach(s => {
-    state.collapsedMap[s.id] = anyOpen;
+    state.collapsedMap[s.id] = shouldCollapse;
   });
 
-  if (btnLabel) btnLabel.textContent = anyOpen ? 'Expand All' : 'Collapse All';
-  if (collapseIcon) {
-    if (anyOpen) collapseIcon.classList.remove('rotate-180');
-    else collapseIcon.classList.add('rotate-180');
-  }
+  const label = document.getElementById('accordionBtnLabel');
+  const icon = document.getElementById('collapseIcon');
+  if (label) label.textContent = shouldCollapse ? 'Expand All' : 'Collapse All';
+  if (icon) icon.className = `w-4 h-4 transform transition-transform duration-300 ${shouldCollapse ? '' : 'rotate-180'}`;
 
   renderSubjects();
 }
 
-function openNotesModalForUnit(subjectId, unitId) {
+// Notes Handling
+function openNotesModal(subjectId, unitId) {
   const subject = state.subjects.find(s => s.id === subjectId);
   if (!subject) return;
   const unit = subject.units.find(u => u.id === unitId);
@@ -711,128 +1724,156 @@ function openNotesModalForUnit(subjectId, unitId) {
   if (textarea) textarea.value = unit.notes || '';
 
   openModal('notesModal');
-  setTimeout(() => textarea?.focus(), 50);
+  textarea?.focus();
 }
 
 async function saveActiveNote() {
   if (!state.activeNotesUnit) return;
-  const { unitId } = state.activeNotesUnit;
+  const { subjectId, unitId } = state.activeNotesUnit;
   const textarea = document.getElementById('notesModalTextarea');
-  const notesText = textarea ? textarea.value : '';
+  const notes = textarea ? textarea.value : '';
 
-  try {
-    await fetchAPI(`/api/units/${unitId}/notes`, {
-      method: 'PUT',
-      body: JSON.stringify({ notes: notesText })
-    });
-    await loadDataFromBackend();
-  } catch (err) {
-    console.error("Failed to save notes:", err);
-  }
-
+  await updateUnitOnBackend(subjectId, unitId, { notes });
   closeModal('notesModal');
 }
 
-function openEditTitleModalForUnit(subjectId, unitId) {
+// Custom Unit Title Handling
+function openEditTitleModal(subjectId, unitId) {
   const subject = state.subjects.find(s => s.id === subjectId);
   if (!subject) return;
   const unit = subject.units.find(u => u.id === unitId);
   if (!unit) return;
 
   state.activeEditUnit = { subjectId, unitId };
+
   const input = document.getElementById('editTitleInput');
   if (input) input.value = unit.title;
 
   openModal('editTitleModal');
-  setTimeout(() => input?.focus(), 50);
+  input?.focus();
 }
 
 async function saveActiveUnitTitle() {
   if (!state.activeEditUnit) return;
-  const { unitId } = state.activeEditUnit;
+  const { subjectId, unitId } = state.activeEditUnit;
   const input = document.getElementById('editTitleInput');
   const newTitle = input ? input.value.trim() : '';
 
   if (newTitle) {
-    try {
-      await fetchAPI(`/api/units/${unitId}/title`, {
-        method: 'PUT',
-        body: JSON.stringify({ title: newTitle })
-      });
-      await loadDataFromBackend();
-    } catch (err) {
-      console.error("Failed to update title:", err);
-    }
+    await updateUnitOnBackend(subjectId, unitId, { title: newTitle });
   }
-
   closeModal('editTitleModal');
 }
 
+// Reset Entire Database
 async function resetAllProgress() {
+  closeModal('resetConfirmModal');
+
+  state.subjects.forEach(subject => {
+    subject.units.forEach(u => {
+      u.completed = false;
+      u.status = 'not_started';
+      u.revisions = 0;
+    });
+  });
+  render();
+
   try {
     await fetchAPI('/api/reset', { method: 'POST' });
-    await loadDataFromBackend();
   } catch (err) {
-    console.error("Failed to reset:", err);
+    console.warn('Reset applied locally:', err);
   }
-  closeModal('resetConfirmModal');
 }
 
+// Export Database JSON
 async function exportDatabase() {
   try {
-    const data = await fetchAPI('/api/export');
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+    const data = {
+      version: '1.0.0',
+      timestamp: new Date().toISOString(),
+      subjects: state.subjects,
+      meta: {
+        lastExported: new Date().toISOString()
+      }
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = dataStr;
-    a.download = `studysync_database_${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
+    a.href = url;
+    a.download = `studysync_backup_${new Date().toISOString().split('T')[0]}.json`;
     a.click();
-    a.remove();
+    URL.revokeObjectURL(url);
   } catch (err) {
-    alert("Export failed: " + err.message);
+    console.error('Export error:', err);
   }
 }
 
-function importDatabase(event) {
-  const file = event.target.files?.[0];
+// Import Database JSON
+function importDatabase(e) {
+  const file = e.target.files && e.target.files[0];
   if (!file) return;
 
   const reader = new FileReader();
-  reader.onload = async function(e) {
+  reader.onload = async (event) => {
     try {
-      const imported = JSON.parse(e.target.result);
-      await fetchAPI('/api/import', {
-        method: 'POST',
-        body: JSON.stringify(imported)
-      });
-      await loadDataFromBackend();
-      alert("Database imported successfully!");
-    } catch (err) {
-      alert("Failed to import: " + err.message);
+      const parsed = JSON.parse(event.target.result);
+      if (parsed && Array.isArray(parsed.subjects)) {
+        state.subjects = parsed.subjects;
+        render();
+
+        try {
+          await fetchAPI('/api/import', {
+            method: 'POST',
+            body: JSON.stringify(parsed)
+          });
+        } catch (apiErr) {
+          console.warn('Import saved locally:', apiErr);
+        }
+
+        alert('Syllabus progress imported successfully!');
+      } else {
+        alert('Invalid backup file format.');
+      }
+    } catch (parseErr) {
+      alert('Error parsing JSON backup file.');
     }
+    e.target.value = '';
   };
   reader.readAsText(file);
-  event.target.value = '';
 }
 
-function triggerCelebration(isBigBurst = false) {
-  if (typeof confetti !== 'function') return;
-
-  if (isBigBurst) {
-    const duration = 3.5 * 1000;
-    const end = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
-
-    const interval = setInterval(function() {
-      const timeLeft = end - Date.now();
-      if (timeLeft <= 0) return clearInterval(interval);
-      const particleCount = 50 * (timeLeft / duration);
-      confetti({ ...defaults, particleCount, origin: { x: 0.2, y: Math.random() - 0.2 } });
-      confetti({ ...defaults, particleCount, origin: { x: 0.8, y: Math.random() - 0.2 } });
-    }, 250);
-  } else {
-    confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, zIndex: 9999 });
+// Confetti Animations
+function triggerMiniCelebration() {
+  if (typeof confetti === 'function') {
+    confetti({
+      particleCount: 25,
+      spread: 60,
+      origin: { y: 0.8 },
+      colors: ['#10b981', '#6366f1', '#06b6d4']
+    });
   }
 }
 
-document.addEventListener('DOMContentLoaded', initApp);
+function triggerMiniConfetti(x, y) {
+  if (typeof confetti === 'function') {
+    const originX = x ? x / window.innerWidth : 0.5;
+    const originY = y ? y / window.innerHeight : 0.5;
+    confetti({
+      particleCount: 15,
+      spread: 45,
+      origin: { x: originX, y: originY },
+      colors: ['#f59e0b', '#ec4899', '#8b5cf6']
+    });
+  }
+}
+
+function triggerCelebration(isFull = false) {
+  if (typeof confetti === 'function') {
+    confetti({
+      particleCount: isFull ? 150 : 60,
+      spread: isFull ? 100 : 70,
+      origin: { y: 0.6 },
+      colors: ['#6366f1', '#a855f7', '#06b6d4', '#10b981', '#f59e0b']
+    });
+  }
+}

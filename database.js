@@ -6,10 +6,12 @@
 const fs = require('fs');
 const path = require('path');
 
-const DATA_DIR = path.join(__dirname, 'data');
-let DB_FILE = path.join(__dirname, 'database.json');
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
+let DB_FILE = process.env.DB_FILE || path.join(__dirname, 'database.json');
 try {
-  if (fs.existsSync(DATA_DIR) && fs.existsSync(path.join(DATA_DIR, 'database.json'))) {
+  if (process.env.DB_FILE) {
+    DB_FILE = process.env.DB_FILE;
+  } else if (fs.existsSync(DATA_DIR) && fs.existsSync(path.join(DATA_DIR, 'database.json'))) {
     DB_FILE = path.join(DATA_DIR, 'database.json');
   }
 } catch (e) {
