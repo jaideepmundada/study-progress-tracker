@@ -703,14 +703,12 @@ async function initApp() {
 
 // --- PASSCODE AUTHENTICATION (PIN: 4501) ---
 function setupAuthentication() {
-  const isUnlocked = localStorage.getItem(AUTH_STORAGE_KEY) === 'true' || 
-                     sessionStorage.getItem(AUTH_STORAGE_KEY) === 'true';
+  // Always clear any permanent unlock key from localStorage so reopening the link ALWAYS requires entering passcode
+  localStorage.removeItem(AUTH_STORAGE_KEY);
+  sessionStorage.removeItem(AUTH_STORAGE_KEY);
 
-  if (isUnlocked) {
-    unlockApp(false);
-  } else {
-    lockApp();
-  }
+  // Always start in locked state when link/page is opened
+  lockApp();
 
   // Keypad button clicks
   document.querySelectorAll('.num-key').forEach(btn => {
@@ -743,6 +741,16 @@ function setupAuthentication() {
     } else if (e.key === 'Escape') {
       resetPinInput();
     }
+  });
+
+  // Automatically clear unlock key when closing or navigating away from the link
+  window.addEventListener('beforeunload', () => {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    sessionStorage.removeItem(AUTH_STORAGE_KEY);
+  });
+  window.addEventListener('pagehide', () => {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    sessionStorage.removeItem(AUTH_STORAGE_KEY);
   });
 }
 
@@ -835,12 +843,8 @@ function verifyPin() {
       try { navigator.vibrate([30, 40, 30]); } catch (e) {}
     }
 
-    const remember = document.getElementById('authRememberCheckbox')?.checked !== false;
-    if (remember) {
-      localStorage.setItem(AUTH_STORAGE_KEY, 'true');
-    } else {
-      sessionStorage.setItem(AUTH_STORAGE_KEY, 'true');
-    }
+    // Do NOT store in localStorage so that closing the link and reopening ALWAYS requires entering the passcode
+    sessionStorage.setItem(AUTH_STORAGE_KEY, 'true');
 
     setTimeout(() => {
       unlockApp(true);
